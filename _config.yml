@@ -26,7 +26,7 @@ github_username:  bpfarrell
 # Build settings
 highlighter: rouge
 markdown: kramdown
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate
 plugins:
   - jekyll-feed
 
