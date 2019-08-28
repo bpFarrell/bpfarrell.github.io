@@ -84,6 +84,7 @@ Keep in mind when you pass something from the vertex to the fragment shader, it 
 Now we need to introduce the blue into the midtones. There are a few ways to approach this, you could mathematically define the color curve, but that can be difficult to match, and can take a decent amount of time. I choose to do a Lookup Texture, or LUT. A LUT is a means to use a value to drive where the shader is looking into a texture. After a short time in Photoshop, I made a gradient that I will use for the LUT
 
 ![Xray LUT](/Assets/xray_LUT.png)
+
 <i>Note the texture I actually saved out, and am using is 256x2 pixels I scaled it up to be more visible.</i>
 
 I made a really simple screen space/image effect shader that looks into the screen texture, and uses the red channel `col.r` of it to look into the U axis of our lut. Keep in mind I could use and color channel since the image is grayscale, it will yield the same results.
@@ -122,7 +123,8 @@ The Thermal visor in Metroid is mimicking infrared camera, which translate black
 <B> WIP after this</B>
 
 Similar to the x ray visor, I made another Lookup table (LUT) to map a grayscale image with. This LUT gives up additional control over the ramping, and simplifies how we will be generating the thermal effect.
-![Thermal LUT](/Assets/Thermal_LUT.png)
+
+![Thermal LUT](/Assets/thermal_LUT.png)
 
 There is a technique in rendering called a Fresnel (also known as rim lighting). Fresnel is used when trying to simulate surfaces that gather more light on their edges, like fur or velvet. This is also used in games usually to help show silhouettes like in holograms, ghosts, or even stylized characters. We will be using this as our base technique to help drive the thermal view. The formula for fresnel is quite simple, just the `dot product` of the surface normal, and your view vector. 
 
@@ -221,7 +223,7 @@ When we turn up `_Heat.w` it will blend to the `_Heat.z` value. So if we set W n
 
 ---
 
-These remapping techniques are really nice because they can be used as a foundation for fun and stylized effects. You can do a cell shading effect with smoother falloffs, non traditional colors, or use a really unique effects with 2D gradients, and even time/animation! With this, and future tutorials I want to bring tools to people who may have been intimidated by shaders or graphics programming in the past, and motivate them to make something we may never have seen before.
+These remapping techniques are really nice because they can be used as a foundation for fun and stylized effects. You can do a cell shading effect with smoother falloffs, non traditional colors, or use a really unique effect with 2D gradients, and even time/animation! With this, and future tutorials I want to bring tools to people who may have been intimidated by shaders or graphics programming in the past, and motivate them to make something we may never have seen before.
 
 Thank you for taking a look at my tutorial if you have any questions or suggestions about it feel free to [message me on twitter](https://twitter.com/_bpFarrell). Thank you [André Cardoso's](https://twitter.com/andre_mc) for the Mix and Jam video this tutorial was based from, and the entire series. 
 
