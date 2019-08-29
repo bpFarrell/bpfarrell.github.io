@@ -6,6 +6,7 @@ categories: jekyll update
 ---
 
 ![Additive Example](/Assets/Metroid_Header.png)
+
 In the Metroid Prime games Samus has a series of tools to aid her in her adventures. A type of tool she can get are visor upgrades. These visors allow views of the world that are not normals visible, Such as a Scanner Visor, Thermal Visor, and X-Ray Visor. In this post we will be covering and breaking down the effects, how they are achieved, and how to implement them into a modern graphics engine. 
 I was inspired by [André Cardoso's](https://twitter.com/andre_mc) base project he made on his awesome [Mix And Jam: Metroid HUD tutorial](https://www.youtube.com/watch?v=0V4o_bDm_II)! This tutorial will not require his base project, but still a great watch to get into the mood.
 
