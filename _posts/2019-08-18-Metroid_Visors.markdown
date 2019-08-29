@@ -7,14 +7,16 @@ categories: jekyll update
 
 ![Additive Example](/Assets/Metroid_Header.png)
 In the Metroid Prime games Samus has a series of tools to aid her in her adventures. A type of tool she can get are visor upgrades. These visors allow views of the world that are not normals visible, Such as a Scanner Visor, Thermal Visor, and X-Ray Visor. In this post we will be covering and breaking down the effects, how they are achieved, and how to implement them into a modern graphics engine. 
-I will be using [André Cardoso's](https://twitter.com/andre_mc) base project he made on his awesome [Mix And Jam: Metroid HUD tutorial](https://www.youtube.com/watch?v=0V4o_bDm_II)!
+I was inspired by [André Cardoso's](https://twitter.com/andre_mc) base project he made on his awesome [Mix And Jam: Metroid HUD tutorial](https://www.youtube.com/watch?v=0V4o_bDm_II)! This tutorial will not require his base project, but still a great watch to get into the mood.
 
-<i>Notice: This tutorial was written with Unity3D in mind, but the shaders we write, are very easy to port.</i>
+<i>Notice: This tutorial was written with Unity3D in mind, but the shaders we write are very easy to port.</i>
 
 ---
 <h2>X-Ray Visor</h2>
 ![Xray Example](/Assets/Xray_Example.png)
-The X-ray Visor has a very high contrast view that is supposed to imitate the images of an actual X-ray scan. There is a couple things to keep in mind when looking at Metroid’s implementation. 
+
+The X-ray  is supposed to imitate the images of an actual X-ray scan. There is a couple things to keep in mind when looking at Metroid’s implementation. 
+* Very high contrast
 
 * Surfaces accumulate ‘brightness’
 
@@ -22,7 +24,7 @@ The X-ray Visor has a very high contrast view that is supposed to imitate the im
 
 * The Color Pallet, it’s not quite black and white
 
-With these in mind we can start working on our shader. I started off with a new unlit shader, and there are a few things we need to configure specifically for the transparency. First we need to set the render queue to transparent, and then change the blending mode to be `One One`
+With these in mind we can start working on our shader. I started off with a new unlit shader, and there are a few things we need to configure specifically for the transparency. First we need to set the [render queue](https://docs.unity3d.com/Manual/SL-SubShaderTags.html) to transparent, and then change the [blending mode](https://docs.unity3d.com/Manual/SL-Blend.html) to be `One One`
 {% highlight c %}
 SubShader
 {
@@ -35,7 +37,7 @@ SubShader
     ...
 {% endhighlight %}
 
-At a low level this takes the pixel that is there, and adds the surface onto it, where normal rendering replaces if the surface is closer to the camera then what is already rendered. This is an effect desirable for lights and fire effects, that we are going to take advantage of.
+At a high level additive rendering takes the pixel that is there, and adds the surfaces being rendered onto it, where normal rendering replaces if the surface is closer to the camera then what is already rendered. This is an effect desirable for lights and fire effects, that we are going to take advantage of.
 
 Let’s Make a material with a texture, and put a few in our scene.
 
@@ -52,7 +54,7 @@ fixed4 frag (v2f i) : SV_Target
 {% endhighlight %}
 ![Additive Example](/Assets/Xray_additiveTest2.gif)
 
-This effect is starting to look a bit closer to what we want, but now we need to darken based off of the depth of the surface. Inside the shader We need to calculate the `clip space` position for each vertex, and thus fragment. Once calculated we will put the screen position into the `varying v2f` so our fragment shader can read it. 
+This effect is starting to look a bit closer to what we want, but the x-ray visor starts to darken objects based off of the depth of the surface. Inside the shader, we need to calculate the [`clip space`](https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html) position for each vertex, and thus fragment. Once calculated we will put the screen position into the `varying v2f` so our fragment shader can read it. 
 {% highlight c++ %}      
 struct v2f
 {
@@ -69,7 +71,7 @@ v2f vert (appdata v)
 }
 {% endhighlight %}
 
-Unity has a built in method that calculates screen pose for us. Once we have the clip space, we want to use the z component to scale our color. I am using `smoothstep` with some hard coded values to calibrate the values.
+Unity has a built in method that calculates screen pose for us. Once we have the clip space, we want to use the z component to scale our color. I am using [`smoothstep`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/smoothstep.xhtml) with some hard coded values to calibrate the values.
 {% highlight c++ %}            
 fixed4 frag(v2f i) : SV_Target
 {
@@ -81,13 +83,13 @@ fixed4 frag(v2f i) : SV_Target
 
 Keep in mind when you pass something from the vertex to the fragment shader, it tri-linearly interpolates every varying value, for every rendered pixel. This allows a smooth transition of color, and even uvs to stretch over the surface!
 
-Now we need to introduce the blue into the midtones. There are a few ways to approach this, you could mathematically define the color curve, but that can be difficult to match, and can take a decent amount of time. I choose to do a Lookup Texture, or LUT. A LUT is a means to use a value to drive where the shader is looking into a texture. After a short time in Photoshop, I made a gradient that I will use for the LUT
+To polish this off, we need to introduce the blue into the midtones. There are a few ways to approach this, you could mathematically define the color curve, but that can be difficult to match, and can take a decent amount of time. I choose to do a Lookup Texture, or LUT. A LUT is a means to use a value to drive where the shader is looking into a texture. After a short time in Photoshop, I made a gradient that I will use for the LUT
 
 ![Xray LUT](/Assets/xray_LUT.png)
 
 <i>Note the texture I actually saved out, and am using is 256x2 pixels I scaled it up to be more visible.</i>
 
-I made a really simple screen space/image effect shader that looks into the screen texture, and uses the red channel `col.r` of it to look into the U axis of our lut. Keep in mind I could use and color channel since the image is grayscale, it will yield the same results.
+I made, and [applied to the camera](https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderImage.html), a simple screen space/image effect shader that looks into the screen texture, and uses the red channel `col.r` of it to look into the U axis of our lut. Keep in mind I could use and color channel since the image is grayscale, it will yield the same results.
 
 {% highlight c++ %}
 Properties
@@ -119,14 +121,13 @@ The Thermal visor in Metroid is mimicking infrared camera, which translate black
 
  - There is a gradient that ramps from a deep violet up to a hot yellow
  - The 'hottest' sources emit more heat from surfaces facing the camera
- - 'cooler' sources to me be very flatly colored
-<B> WIP after this</B>
+ - 'Cooler' sources to me be very flatly colored
 
-Similar to the x ray visor, I made another Lookup table (LUT) to map a grayscale image with. This LUT gives up additional control over the ramping, and simplifies how we will be generating the thermal effect.
+Similar to the x ray visor, I made another Lookup texture (LUT) to map a grayscale image with. This LUT gives up additional control over the ramping, and simplifies how we will be generating the thermal effect.
 
 ![Thermal LUT](/Assets/thermal_LUT.png)
 
-There is a technique in rendering called a Fresnel (also known as rim lighting). Fresnel is used when trying to simulate surfaces that gather more light on their edges, like fur or velvet. This is also used in games usually to help show silhouettes like in holograms, ghosts, or even stylized characters. We will be using this as our base technique to help drive the thermal view. The formula for fresnel is quite simple, just the `dot product` of the surface normal, and your view vector. 
+There is a technique in rendering called a Fresnel (also known as rim lighting). Fresnel is used when trying to simulate surfaces that gather more light on their edges, like fur or velvet. This is also used in games usually to help show silhouettes like in holograms, ghosts, or even stylized characters. We will be using this as our base technique to help drive the thermal view. The formula for fresnel is quite simple, just the [`dot product`](https://en.wikipedia.org/wiki/Dot_product) of the surface normal, and your view vector. 
 
 {% highlight c++ %}
 struct appdata
@@ -180,7 +181,7 @@ fixed4 frag(v2f i) : SV_Target
 {% endhighlight %}
 ![Thermal LUT](/Assets/Thermal_fresnel01.gif)
 
-That's starting to look pretty good, however we need to add some controls for adjusting the material, and the amount of 'heat' objects emit. Let's add a Vector `Property`(uniform), so we can start packing in metadata about the objects.
+That's starting to look pretty good, however we need to add some controls for adjusting the material, and the amount of 'heat' objects emit. Let's add a Vector [`Property`](https://docs.unity3d.com/Manual/SL-Properties.html)(uniform), so we can start packing in metadata about the objects.
 
 {% highlight c# %}
 
@@ -203,7 +204,7 @@ fixed4 frag(v2f i) : SV_Target
 
 }
 {% endhighlight %}
-The `therm` object, and `smoothstep` might look a little intimidating, but what this is letting us do is remap the surface’s Fresnel to the texture coord. By Adjusting `_Heat.x`we can adjust the middle ground, where the 50% gray lines up on the texture, and the `_Heat.y` let's adjust the width, of the texture on the surface. While Adjusting `_Heat.x` the LUT slides over the range of the Fresnel, and the `_Heat.y` pinches it.
+The `therm` object, and [`smoothstep`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/smoothstep.xhtml) might look a little intimidating, but what this is letting us do is remap the surface’s Fresnel to the texture coord. By Adjusting `_Heat.x`we can adjust the middle ground, where the 50% gray lines up on the texture, and the `_Heat.y` let's adjust the width, of the texture on the surface. While Adjusting `_Heat.x` the LUT slides over the range of the Fresnel, and the `_Heat.y` pinches it.
 
 ![Thermal LUT](/Assets/Thermal_fresnel02.gif)
 
@@ -226,6 +227,3 @@ When we turn up `_Heat.w` it will blend to the `_Heat.z` value. So if we set W n
 These remapping techniques are really nice because they can be used as a foundation for fun and stylized effects. You can do a cell shading effect with smoother falloffs, non traditional colors, or use a really unique effect with 2D gradients, and even time/animation! With this, and future tutorials I want to bring tools to people who may have been intimidated by shaders or graphics programming in the past, and motivate them to make something we may never have seen before.
 
 Thank you for taking a look at my tutorial if you have any questions or suggestions about it feel free to [message me on twitter](https://twitter.com/_bpFarrell). Thank you [André Cardoso's](https://twitter.com/andre_mc) for the Mix and Jam video this tutorial was based from, and the entire series. 
-
-
-
