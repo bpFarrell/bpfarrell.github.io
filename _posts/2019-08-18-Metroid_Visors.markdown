@@ -2,7 +2,10 @@
 layout: post
 title:  "Metroid Prime Visors"
 date:   2019-08-18 16:02:34 -0700
-categories: jekyll update
+subtitle: Shader effects for Thermal and X-Ray visors.
+description: Remake the legendary effects used in this GameCube classic.
+categories: Case Study
+image: /Assets/Metroid_Header.png
 ---
 
 ![Additive Example](/Assets/Metroid_Header.png)
