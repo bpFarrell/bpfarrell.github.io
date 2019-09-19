@@ -3,9 +3,9 @@ layout: post
 title:  "Metroid Prime Visors"
 date:   2019-08-18 16:02:34 -0700
 subtitle: Shader effects for Thermal and X-Ray visors.
-description: Remake the legendary effects used in this GameCube classic.
+description: Learn how to remake the legendary effects used in this GameCube classic.
 categories: Case Study
-image: /Assets/Metroid_Header.png
+image: https://bpfarrell.github.io/Assets/og_visor.png
 ---
 
 ![Additive Example](/Assets/Metroid_Header.png)
