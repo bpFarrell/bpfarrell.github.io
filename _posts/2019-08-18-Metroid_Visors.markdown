@@ -8,6 +8,9 @@ categories: Case Study
 image: https://bpfarrell.github.io/Assets/og_visor.png
 ---
 
+<body>
+    {% include analytics.html %}
+</body>
 ![Additive Example](/Assets/Metroid_Header.png)
 
 In the Metroid Prime games Samus has a series of tools to aid her in her adventures. A type of tool she can get are visor upgrades. These visors allow views of the world that are not normals visible, Such as a Scanner Visor, Thermal Visor, and X-Ray Visor. In this post we will be covering and breaking down the effects, how they are achieved, and how to implement them into a modern graphics engine. 
